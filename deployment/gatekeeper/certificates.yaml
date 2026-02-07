@@ -1,0 +1,22 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+    name: kloudstack-gatekeeper
+    namespace: hicompute
+spec:
+    isCA: true
+    commonName: kloudstack-gatekeeper-ca
+    dnsNames:
+        - gatekeeper
+        - gatekeeper.hicompute
+        - gatekeeper.hicompute.svc
+        - gatekeeper.hicompute.svc.cluster.local
+    secretName: kloudstack-gatekeeper-tls
+    privateKey:
+        algorithm: ECDSA
+        size: 256
+        rotationPolicy: Always
+    issuerRef:
+        name: selfsigned-issuer
+        kind: ClusterIssuer
+        group: cert-manager.io

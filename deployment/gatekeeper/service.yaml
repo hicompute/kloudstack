@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: kloudstack-gatekeeper
+    namespace: hicompute
+spec:
+    selector:
+        app: gatekeeper
+    ports:
+        - protocol: TCP
+          name: api
+          port: 443
+          targetPort: 443

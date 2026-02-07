@@ -1,0 +1,169 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+    labels:
+        k8s-app: ovn-controller
+    name: ovn-controller
+    namespace: kloudstack
+spec:
+    selector:
+        matchLabels:
+            k8s-app: ovn-controller
+    template:
+        metadata:
+            labels:
+                k8s-app: ovn-controller
+                name: ovn-controller
+        spec:
+            containers:
+                - args:
+                      - --remote=punix:/var/run/openvswitch/db.sock
+                      - --remote=db:Open_vSwitch,Open_vSwitch,manager_options
+                      - --pidfile
+                  command:
+                      - ovsdb-server
+                  image: registry.ik8s.ir/hicompute/ovs:dpdk
+                  imagePullPolicy: IfNotPresent
+                  name: ovs-dbserver
+                  resources: {}
+                  securityContext:
+                      privileged: true
+                  volumeMounts:
+                      - mountPath: /etc/openvswitch
+                        name: ovsconf
+                      - mountPath: /var/run/openvswitch
+                        name: ovsrun
+                      - mountPath: /var/lib/openvswitch
+                        name: ovslib
+                      - mountPath: /var/log/openvswitch
+                        name: log
+                      - mountPath: /var/run/netns
+                        name: netns
+                - args:
+                      - --pidfile
+                  command:
+                      - ovs-vswitchd
+                  image: registry.ik8s.ir/hicompute/ovs:dpdk
+                  imagePullPolicy: IfNotPresent
+                  name: ovs-vswitchd
+                  resources: {}
+                  securityContext:
+                      privileged: true
+                  volumeMounts:
+                      - mountPath: /dev/hugepages
+                        name: hugepages
+                      - mountPath: /etc/openvswitch
+                        name: ovsconf
+                      - mountPath: /var/run/openvswitch
+                        name: ovsrun
+                      - mountPath: /var/lib/openvswitch
+                        name: ovslib
+                      - mountPath: /var/log/openvswitch
+                        name: log
+                      - mountPath: /var/run/netns
+                        name: netns
+                - args:
+                      - --pidfile
+                  command:
+                      - ovn-controller
+                  image: registry.ik8s.ir/hicompute/ovs:dpdk
+                  imagePullPolicy: IfNotPresent
+                  name: ovn-controller
+                  resources: {}
+                  securityContext:
+                      privileged: true
+                  terminationMessagePath: /dev/termination-log
+                  terminationMessagePolicy: File
+                  volumeMounts:
+                      - mountPath: /etc/openvswitch
+                        name: ovsconf
+                      - mountPath: /var/run/ovn
+                        name: ovnrun
+                      - mountPath: /var/run/openvswitch
+                        name: ovsrun
+                      - mountPath: /var/lib/openvswitch
+                        name: ovslib
+                      - mountPath: /var/log/openvswitch
+                        name: log
+                      - mountPath: /var/run/netns
+                        name: netns
+            dnsPolicy: ClusterFirstWithHostNet
+            hostIPC: true
+            hostNetwork: true
+            hostPID: true
+            initContainers:
+                - args:
+                      - |
+                          if [ ! -e /etc/openvswitch/conf.db ]; then
+                            ovsdb-tool create /etc/openvswitch/conf.db /usr/share/openvswitch/vswitch.ovsschema
+                          fi
+                          ovsdb-server \
+                            --remote=punix:/var/run/openvswitch/db.sock \
+                            --remote=db:Open_vSwitch,Open_vSwitch,manager_options \
+                            --pidfile \
+                            --detach
+                          ovs-vsctl set Open_vSwitch . \
+                            external_ids:system-id=$(hostname) \
+                            external_ids:ovn-remote=tcp:192.168.12.177:6642,tcp:192.168.12.178:6642,tcp:192.168.12.179:6642 \
+                            external_ids:ovn-encap-type=geneve \
+                            external_ids:ovn-encap-ip=$NODE_IP \
+                            other_config:dpdk-init=true \
+                            other_config:dpdk-lcore-mask=0x1 \
+                            other_config:dpdk-socket-mem="1024,1024" \
+                            other_config:dpdk-hugepage-dir="/dev/hugepages"
+                          pkill ovsdb-server
+                  command:
+                      - /bin/sh
+                      - -c
+                  env:
+                      - name: CENTRAL_IP
+                        value: 192.168.12.177
+                      - name: NODE_IP
+                        valueFrom:
+                            fieldRef:
+                                apiVersion: v1
+                                fieldPath: status.hostIP
+                  image: ovs:dpdk
+                  name: init-db
+                  volumeMounts:
+                      - mountPath: /dev/hugepages
+                        name: hugepages
+                      - mountPath: /etc/openvswitch
+                        name: ovsconf
+                      - mountPath: /var/run/openvswitch
+                        name: ovsrun
+                      - mountPath: /var/lib/openvswitch
+                        name: ovslib
+                      - mountPath: /var/log/openvswitch
+                        name: log
+                      - mountPath: /var/run/netns
+                        name: netns
+            volumes:
+                - hostPath:
+                      path: /etc/openvswitch
+                      type: DirectoryOrCreate
+                  name: ovsconf
+                - hostPath:
+                      path: /var/run/openvswitch
+                      type: DirectoryOrCreate
+                  name: ovsrun
+                - hostPath:
+                      path: /var/lib/openvswitch
+                      type: DirectoryOrCreate
+                  name: ovslib
+                - hostPath:
+                      path: /var/run/ovn
+                      type: DirectoryOrCreate
+                  name: ovnrun
+                - hostPath:
+                      path: /var/run/netns
+                      type: Directory
+                  name: netns
+                - hostPath:
+                      path: /var/log/openvswitch
+                      type: DirectoryOrCreate
+                  name: log
+                - hostPath:
+                      path: /dev/hugepages
+                      type: DirectoryOrCreate
+                  name: hugepages

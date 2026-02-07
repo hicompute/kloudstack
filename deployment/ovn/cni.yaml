@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+    name: kloudstack-ovn-cni
+    namespace: hicompute
+    labels:
+        k8s-app: kloudstack-ovn-cni
+spec:
+    selector:
+        matchLabels:
+            k8s-app: kloudstack-ovn-cni
+    template:
+        metadata:
+            labels:
+                k8s-app: kloudstack-ovn-cni
+        spec:
+            serviceAccount: kloudstack-ovn-cni
+            serviceAccountName: kloudstack-ovn-cni
+            hostNetwork: true
+            initContainers:
+                - args:
+                      - |
+                          chmod +x /kloudstack-ovn-cni
+                          cp /kloudstack-ovn-cni /opt/cni/bin/
+                          echo "
+                            {
+                              "cniVersion": "1.1.0",
+                              "name": "kloudstack-ovn-cni",
+                              "type": "kloudstack-ovn-cni",
+                              "dns": {}
+                            }
+                          " > /etc/cni/net.d/20-kloudstack-ovn-cni.conflist
+                  command:
+                      - /bin/sh
+                      - -c
+                  image: registry.ik8s.ir/hicompute/kloudstack:v0.0.0-alpha.0
+                  name: copy-cni-file
+                  volumeMounts:
+                      - mountPath: /opt/cni/bin
+                        name: cnibin
+                      - mountPath: /etc/cni/net.d
+                        name: cninetd
+            containers:
+                - name: kloudstack-ovn-cni
+                  image: registry.ik8s.ir/hicompute/kloudstack:v0.0.0-alpha.0
+                  args:
+                      - "ovncnid"
+                  resources:
+                      requests:
+                          memory: "32Mi"
+                          cpu: "100m"
+                      limits:
+                          memory: "128Mi"
+                          cpu: "200m"
+                  volumeMounts:
+                      - mountPath: /var/run/kloudstack
+                        name: runkloudstack
+            volumes:
+                - hostPath:
+                      path: /opt/cni/bin
+                      type: DirectoryOrCreate
+                  name: cnibin
+                - hostPath:
+                      path: /etc/cni/net.d
+                      type: DirectoryOrCreate
+                  name: cninetd
+                - hostPath:
+                      path: /var/run/kloudstack
+                      type: DirectoryOrCreate
+                  name: cnisocket
+            nodeSelector:
+                node-role.kubernetes.io/controlplane: "true"

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    labels:
+        app: gatekeeper
+    name: kloudstack-gatekeeper
+    namespace: hicompute
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: gatekeeper
+    template:
+        metadata:
+            labels:
+                app: gatekeeper
+        spec:
+            serviceAccountName: kloudstack-gatekeeper
+            affinity:
+                nodeAffinity:
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                        nodeSelectorTerms:
+                            - matchExpressions:
+                                  - key: node-role.kubernetes.io/control-plane
+                                    operator: Exists
+            containers:
+                - image: registry.ik8s.ir/hicompute/kloudstack:v0.0.0-alpha.0
+                  name: gatekeeper
+                  args:
+                      - "gatekeeper"
+                  resources:
+                      requests:
+                          memory: "32Mi"
+                          cpu: "10m"
+                      limits:
+                          memory: "128Mi"
+                          cpu: "500m"
+                  volumeMounts:
+                      - mountPath: "/tls"
+                        name: tls
+                        readOnly: true
+            volumes:
+                - name: tls
+                  secret:
+                      secretName: kloudstack-gatekeeper-tls
+            tolerations:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: Exists
+                  effect: NoSchedule
