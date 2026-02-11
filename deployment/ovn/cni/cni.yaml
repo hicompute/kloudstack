@@ -32,7 +32,7 @@ spec:
                   command:
                       - /bin/sh
                       - -c
-                  image: registry.ik8s.ir/hicompute/kloudstack:v0.0.0-alpha.0
+                  image: registry.ik8s.ir/hicompute/kloudstack:v0.0.0-alpha.1
                   name: copy-cni-file
                   volumeMounts:
                       - mountPath: /opt/cni/bin
@@ -41,7 +41,7 @@ spec:
                         name: cninetd
             containers:
                 - name: kloudstack-ovn-cni
-                  image: registry.ik8s.ir/hicompute/kloudstack:v0.0.0-alpha.0
+                  image: registry.ik8s.ir/hicompute/kloudstack:v0.0.0-alpha.1
                   args:
                       - "ovncnid"
                   resources:
@@ -56,6 +56,11 @@ spec:
                         name: cnisocket
                       - mountPath: /var/run/openvswitch
                         name: ovsrun
+                      - mountPath: /var/run/netns
+                        name: netns
+                        mountPropagation: Bidirectional
+                  securityContext:
+                      privileged: true
             volumes:
                 - hostPath:
                       path: /opt/cni/bin
@@ -73,3 +78,7 @@ spec:
                       path: /var/run/openvswitch
                       type: DirectoryOrCreate
                   name: ovsrun
+                - hostPath:
+                      path: /var/run/netns
+                      type: Directory
+                  name: netns

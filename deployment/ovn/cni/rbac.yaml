@@ -10,10 +10,16 @@ metadata:
     name: hicompute:kloudstack:ovn-cni
 rules:
     - apiGroups:
+          - ""
+      resources:
+          - pods
+      verbs:
+          - get
+    - apiGroups:
           - ipam.kloudstack.ir
       resources:
-          - "clusterips"
-          - "clusterippools"
+          - clusterips
+          - clusterippools
       verbs:
           - create
           - delete
