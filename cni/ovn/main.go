@@ -40,7 +40,7 @@ func cmdDel(args *skel.CmdArgs) error {
 }
 
 func runOnDaemon(CMD string, args *skel.CmdArgs) (*current.Result, error) {
-	cniDsocket := "/var/run/kloudstack-ovn-cni.sock"
+	cniDsocket := "/var/run/kloudstack/ovn-cni.sock"
 	var resp ovnCniTypes.CNIResponse
 	if err := callCniDaemon(cniDsocket, ovnCniTypes.CNIRequest{
 		Cmd:     CMD,
