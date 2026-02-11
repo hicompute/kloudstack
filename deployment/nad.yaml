@@ -1,0 +1,7 @@
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+    name: kloudstack
+    namespace: hicompute
+spec:
+    config: '{ "cniVersion": "1.1.0", "type": "kloudstack-ovn-cni" }'

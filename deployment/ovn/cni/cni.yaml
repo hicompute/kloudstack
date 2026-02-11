@@ -14,7 +14,6 @@ spec:
             labels:
                 k8s-app: kloudstack-ovn-cni
         spec:
-            serviceAccount: kloudstack-ovn-cni
             serviceAccountName: kloudstack-ovn-cni
             hostNetwork: true
             initContainers:
@@ -54,7 +53,9 @@ spec:
                           cpu: "200m"
                   volumeMounts:
                       - mountPath: /var/run/kloudstack
-                        name: runkloudstack
+                        name: cnisocket
+                      - mountPath: /var/run/openvswitch
+                        name: ovsrun
             volumes:
                 - hostPath:
                       path: /opt/cni/bin
@@ -68,5 +69,7 @@ spec:
                       path: /var/run/kloudstack
                       type: DirectoryOrCreate
                   name: cnisocket
-            nodeSelector:
-                node-role.kubernetes.io/controlplane: "true"
+                - hostPath:
+                      path: /var/run/openvswitch
+                      type: DirectoryOrCreate
+                  name: ovsrun

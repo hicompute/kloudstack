@@ -2,18 +2,18 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
     labels:
-        k8s-app: ovn-controller
-    name: ovn-controller
-    namespace: kloudstack
+        k8s-app: kloudstack-ovn-controller
+    name: kloudstack-ovn-controller
+    namespace: hicompute
 spec:
     selector:
         matchLabels:
-            k8s-app: ovn-controller
+            k8s-app: kloudstack-ovn-controller
     template:
         metadata:
             labels:
-                k8s-app: ovn-controller
-                name: ovn-controller
+                k8s-app: kloudstack-ovn-controller
+                name: kloudstack-ovn-controller
         spec:
             containers:
                 - args:
@@ -25,7 +25,6 @@ spec:
                   image: registry.ik8s.ir/hicompute/ovs:dpdk
                   imagePullPolicy: IfNotPresent
                   name: ovs-dbserver
-                  resources: {}
                   securityContext:
                       privileged: true
                   volumeMounts:
@@ -66,14 +65,11 @@ spec:
                       - --pidfile
                   command:
                       - ovn-controller
-                  image: registry.ik8s.ir/hicompute/ovs:dpdk
+                  image: registry.devnovin.ir/novincloud/docker-images/ovs:dpdk
                   imagePullPolicy: IfNotPresent
                   name: ovn-controller
-                  resources: {}
                   securityContext:
                       privileged: true
-                  terminationMessagePath: /dev/termination-log
-                  terminationMessagePolicy: File
                   volumeMounts:
                       - mountPath: /etc/openvswitch
                         name: ovsconf
@@ -91,6 +87,8 @@ spec:
             hostIPC: true
             hostNetwork: true
             hostPID: true
+            imagePullSecrets:
+                - name: regcred
             initContainers:
                 - args:
                       - |
@@ -123,7 +121,8 @@ spec:
                             fieldRef:
                                 apiVersion: v1
                                 fieldPath: status.hostIP
-                  image: ovs:dpdk
+                  image: registry.ik8s.ir/hicompute/ovs:dpdk
+                  imagePullPolicy: IfNotPresent
                   name: init-db
                   volumeMounts:
                       - mountPath: /dev/hugepages

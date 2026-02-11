@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+    name: kloudstack-ovn-cni
+    namespace: hicompute
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+    name: hicompute:kloudstack:ovn-cni
+rules:
+    - apiGroups:
+          - ipam.kloudstack.ir
+      resources:
+          - "clusterips"
+          - "clusterippools"
+      verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+    - apiGroups:
+          - ipam.kloudstack.ir
+      resources:
+          - clusterips/status
+          - clusterippools/status
+      verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+    name: hicompute:kloudstack:ovn-cni
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: hicompute:kloudstack:ovn-cni
+subjects:
+    - kind: ServiceAccount
+      name: kloudstack-ovn-cni
+      namespace: hicompute
