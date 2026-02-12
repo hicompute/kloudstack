@@ -93,9 +93,9 @@ func (oa *OvsAgent) updateInterfaceStats(iface *ovsModels.Interface) {
 	}
 
 	if v, ok := stats["rx_bytes"]; ok {
-		metrics.RxBytes.With(labels).Set(float64(v))
+		metrics.TxBytes.With(labels).Set(float64(v))
 	}
 	if v, ok := stats["tx_bytes"]; ok {
-		metrics.TxBytes.With(labels).Set(float64(v))
+		metrics.RxBytes.With(labels).Set(float64(v))
 	}
 }
