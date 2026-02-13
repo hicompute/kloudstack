@@ -23,3 +23,8 @@ type CniKubeArgs struct {
 	K8S_POD_INFRA_CONTAINER_ID types.UnmarshallableString
 	K8S_POD_UID                types.UnmarshallableString
 }
+
+type PluginConf struct {
+	types.NetConf
+	LogicalSwitch string `json:"logical-switch"`
+}

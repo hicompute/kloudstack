@@ -7,10 +7,9 @@ import (
 	"github.com/containernetworking/plugins/pkg/ip"
 	"github.com/containernetworking/plugins/pkg/ns"
 	"github.com/vishvananda/netlink"
-	"k8s.io/klog/v2"
 )
 
-func SetupVeth(contNetnsPath, contIfaceName, requestedMac string, mtu int, ipAddress *net.IPNet, gatewayAddress *net.IP) (*current.Interface, *current.Interface, error) {
+func SetupVeth(contNetnsPath, contIfaceName, requestedMac string, mtu int) (*current.Interface, *current.Interface, error) {
 	hostIface := &current.Interface{}
 	contIface := &current.Interface{}
 	contNetns, err := ns.GetNS(contNetnsPath)
@@ -27,32 +26,6 @@ func SetupVeth(contNetnsPath, contIfaceName, requestedMac string, mtu int, ipAdd
 		if err := setInterfaceUp(contIfaceName); err != nil {
 			return err
 		}
-		klog.Infof("ip address: %v, gateway: %v", ipAddress, *gatewayAddress)
-		// if ipAddress != nil {
-		// 	link, err := AddInterfaceIPAddress(contIfaceName, &netlink.Addr{
-		// 		IPNet:     ipAddress,
-		// 		LinkIndex: containerVeth.Index,
-		// 	})
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// 	klog.Infof("ip address: %v", ipAddress)
-		// 	if gatewayAddress != nil {
-		// 		klog.Infof("gateay ip address: %v", *gatewayAddress)
-		// 		dr := netlink.Route{
-		// 			Dst:       nil,
-		// 			Gw:        *gatewayAddress,
-		// 			Flags:     int(netlink.FLAG_ONLINK),
-		// 			LinkIndex: link.Attrs().Index,
-		// 			// Scope:     netlink.SCOPE_NOWHERE,
-		// 		}
-		// 		if err := netlink.RouteReplace(&dr); err != nil {
-		// 			klog.Errorf("error on route add: %v", err)
-		// 			return err
-		// 		}
-		// 	}
-		// }
-
 		contIface.Name = containerVeth.Name
 		contIface.Mac = containerVeth.HardwareAddr.String()
 		contIface.Sandbox = contNetns.Path()

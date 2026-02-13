@@ -16,6 +16,7 @@ import (
 	helper "github.com/hicompute/kloudstack/pkg/helpers"
 	kloudstack_ipam "github.com/hicompute/kloudstack/pkg/ipam"
 	netUtils "github.com/hicompute/kloudstack/pkg/net_utils"
+	netutils "github.com/hicompute/kloudstack/pkg/net_utils"
 	"github.com/hicompute/kloudstack/pkg/ovn"
 	"github.com/hicompute/kloudstack/pkg/ovs"
 	"k8s.io/klog/v2"
@@ -99,6 +100,14 @@ func (s *CNIServer) handleConnection(conn net.Conn) {
 
 func (s *CNIServer) handleAdd(req skel.CmdArgs) cniTypes.CNIResponse {
 
+	conf, err := parseConfig(req.StdinData)
+	if err != nil {
+		return cniTypes.CNIResponse{
+			Error: err.Error(),
+		}
+	}
+	klog.Infof("logical switch: %s", conf.LogicalSwitch)
+
 	k8sArgs := cniTypes.CniKubeArgs{}
 	if err := types.LoadArgs(req.Args, &k8sArgs); err != nil {
 		klog.Infof("error loading args: %v", err)
@@ -108,22 +117,37 @@ func (s *CNIServer) handleAdd(req skel.CmdArgs) cniTypes.CNIResponse {
 	}
 	K8S_POD_NAMESPACE := string(k8sArgs.K8S_POD_NAMESPACE)
 	K8S_POD_NAME := string(k8sArgs.K8S_POD_NAME)
-	clusterIP, clusterIPPool, err := s.ipam.FindOrCreateClusterIP(kloudstack_ipam.IPAMRequest{
-		Interface: req.IfName,
-		Namespace: K8S_POD_NAMESPACE,
-		Name:      K8S_POD_NAME,
-		Family:    "v4",
-	})
+	vmName := helper.ExtractVMName(K8S_POD_NAME)
 
-	if err != nil {
-		return cniTypes.CNIResponse{
-			Error: err.Error(),
+	var ipAddress net.IPNet
+	var mac string
+
+	ls := conf.LogicalSwitch
+	if ls == "" {
+		ls = "public"
+
+		clusterIP, clusterIPPool, err := s.ipam.FindOrCreateClusterIP(kloudstack_ipam.IPAMRequest{
+			Interface: req.IfName,
+			Namespace: K8S_POD_NAMESPACE,
+			Name:      K8S_POD_NAME,
+			Family:    "v4",
+		})
+
+		if err != nil {
+			return cniTypes.CNIResponse{
+				Error: err.Error(),
+			}
 		}
+
+		_, ipNet, err := net.ParseCIDR(clusterIPPool.Spec.CIDR)
+		ipAddress = net.IPNet{IP: net.ParseIP(clusterIP.Spec.Address), Mask: net.IPMask(ipNet.Mask)}
+		mac = clusterIP.Spec.Mac
+	} else {
+		ls = K8S_POD_NAMESPACE + "/" + ls
+		mac = netutils.GenerateVethMAC(vmName, "02")
+		ipAddress = net.IPNet{IP: net.ParseIP("192.168.1.1"), Mask: net.IPMask(net.CIDRMask(24, 32))}
 	}
-	_, ipNet, err := net.ParseCIDR(clusterIPPool.Spec.CIDR)
-	ipAddress := net.IPNet{IP: net.ParseIP(clusterIP.Spec.Address), Mask: net.IPMask(ipNet.Mask)}
-	gateway := net.ParseIP(clusterIPPool.Spec.Gateway)
-	hostIface, contIface, err := netUtils.SetupVeth(req.Netns, req.IfName, clusterIP.Spec.Mac, 1500, &ipAddress, &gateway)
+	hostIface, contIface, err := netUtils.SetupVeth(req.Netns, req.IfName, mac, 1500)
 	if err != nil {
 		klog.Errorf("%v", err)
 		return cniTypes.CNIResponse{
@@ -140,9 +164,7 @@ func (s *CNIServer) handleAdd(req skel.CmdArgs) cniTypes.CNIResponse {
 		}
 	}
 
-	vmName := helper.ExtractVMName(K8S_POD_NAME)
-
-	if err := s.ovnAgent.CreateLogicalPort("public", ifaceId, contIface.Mac, map[string]string{
+	if err := s.ovnAgent.CreateLogicalPort(ls, ifaceId, contIface.Mac, map[string]string{
 		"namespace": K8S_POD_NAMESPACE,
 		"pod":       K8S_POD_NAME,
 		"vmName":    vmName,
@@ -162,7 +184,7 @@ func (s *CNIServer) handleAdd(req skel.CmdArgs) cniTypes.CNIResponse {
 			{
 				Interface: types100.Int(0),
 				Address:   ipAddress,
-				Gateway:   gateway,
+				// Gateway:   gateway,
 			},
 		}
 	}
@@ -197,4 +219,18 @@ func (s *CNIServer) handleDel(req skel.CmdArgs) cniTypes.CNIResponse {
 		}
 	}
 	return cniTypes.CNIResponse{}
+}
+
+func parseConfig(stdin []byte) (*cniTypes.PluginConf, error) {
+	conf := cniTypes.PluginConf{}
+
+	if err := json.Unmarshal(stdin, &conf); err != nil {
+		return nil, fmt.Errorf("failed to parse network configuration: %v", err)
+	}
+
+	if err := version.ParsePrevResult(&conf.NetConf); err != nil {
+		return nil, fmt.Errorf("could not parse prevResult: %v", err)
+	}
+
+	return &conf, nil
 }

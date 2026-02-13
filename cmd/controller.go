@@ -46,6 +46,11 @@ var controllerCmd = &cobra.Command{
 			UpdateFunc: ctl.OnUpdateVMI,
 		})
 
+		logicalSwitchInformerV1Alpha1 := k8s.NewDynamicInformer(dif, v1alpha1.SchemeBuilder.GroupVersion.WithResource("logicalswitches"))
+		logicalSwitchInformerV1Alpha1.AddEventHandler(cache.ResourceEventHandlerDetailedFuncs{
+			AddFunc: ctl.OnAddLogicalSwitch,
+		})
+
 		stopCh := make(chan struct{})
 
 		defer close(stopCh)
@@ -54,6 +59,7 @@ var controllerCmd = &cobra.Command{
 		go clusterippoolInformerV1alpha1.Run(stopCh)
 		go kuevirtVMInformerV1.Run(stopCh)
 		go kuevirtVMIInformerV1.Run(stopCh)
+		go logicalSwitchInformerV1Alpha1.Run(stopCh)
 
 		select {}
 	},

@@ -245,3 +245,25 @@ func (in *ClusterIPStatus) DeepCopy() *ClusterIPStatus {
 	in.DeepCopyInto(out)
 	return out
 }
+
+func (in *LogicalSwitch) DeepCopyInto(out *LogicalSwitch) {
+	*out = *in
+	out.TypeMeta = in.TypeMeta
+	in.ObjectMeta.DeepCopyInto(&out.ObjectMeta)
+}
+
+func (in *LogicalSwitch) DeepCopy() *LogicalSwitch {
+	if in == nil {
+		return nil
+	}
+	out := new(LogicalSwitch)
+	in.DeepCopyInto(out)
+	return out
+}
+
+func (in *LogicalSwitch) DeepCopyObject() runtime.Object {
+	if c := in.DeepCopy(); c != nil {
+		return c
+	}
+	return nil
+}

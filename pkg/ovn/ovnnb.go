@@ -13,6 +13,19 @@ import (
 	"k8s.io/klog/v2"
 )
 
+func (oa *OVNagent) CreateLogicalSwitch(namespace, name string) error {
+	ls := &models.LogicalSwitch{Name: namespace + "/" + name}
+	lsOP, err := oa.nbClient.Create(ls)
+	if err != nil {
+		return err
+	}
+	_, err = oa.nbClient.Transact(context.Background(), lsOP...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // CreateLogicalPort creates a new logical port and attaches it to a logical switch
 func (oa *OVNagent) CreateLogicalPort(lsName, lspName, peerMAC string, options ...map[string]string) error {
 	ctx := context.Background()

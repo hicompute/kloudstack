@@ -1,12 +1,11 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
     name: kloudstack-dhcp-server
     namespace: hicompute
     labels:
         k8s-app: kloudstack-dhcp-server
 spec:
-    replicas: 1
     selector:
         matchLabels:
             k8s-app: kloudstack-dhcp-server

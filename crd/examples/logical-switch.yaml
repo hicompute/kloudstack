@@ -1,0 +1,5 @@
+apiVersion: kloudstack.ir/v1alpha1
+kind: LogicalSwitch
+metadata:
+    namespace: default
+    name: sw1
