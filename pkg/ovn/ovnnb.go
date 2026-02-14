@@ -36,7 +36,7 @@ func (oa *OVNagent) CreateLogicalSwitch(namespace, name string) error {
 	return nil
 }
 
-// CreateLogicalPort creates a new logical port and attaches it to a logical switch
+// CreateLogicalPort creates a new logical port and attaches it to a logical switch.
 func (oa *OVNagent) CreateLogicalPort(lsName, lspName, peerMAC string, options ...map[string]string) error {
 	ctx := context.Background()
 	lspUUID := uuid.New().String()

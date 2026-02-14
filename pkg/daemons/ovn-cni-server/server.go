@@ -106,7 +106,6 @@ func (s *CNIServer) handleAdd(req skel.CmdArgs) cniTypes.CNIResponse {
 			Error: err.Error(),
 		}
 	}
-	klog.Infof("logical switch: %s", conf.LogicalSwitch)
 
 	k8sArgs := cniTypes.CniKubeArgs{}
 	if err := types.LoadArgs(req.Args, &k8sArgs); err != nil {
@@ -174,6 +173,7 @@ func (s *CNIServer) handleAdd(req skel.CmdArgs) cniTypes.CNIResponse {
 			Error: err.Error(),
 		}
 	}
+
 	result := current.Result{
 		CNIVersion: version.Current(),
 		Interfaces: []*current.Interface{contIface},
@@ -188,6 +188,7 @@ func (s *CNIServer) handleAdd(req skel.CmdArgs) cniTypes.CNIResponse {
 			},
 		}
 	}
+
 	return cniTypes.CNIResponse{
 		Result: result,
 		Error:  "",
@@ -202,11 +203,20 @@ func (s *CNIServer) handleDel(req skel.CmdArgs) cniTypes.CNIResponse {
 			Error: err.Error(),
 		}
 	}
+	conf, err := parseConfig(req.StdinData)
+	if err != nil {
+		return cniTypes.CNIResponse{
+			Error: err.Error(),
+		}
+	}
 	K8S_POD_NAMESPACE := string(k8sArgs.K8S_POD_NAMESPACE)
 	K8S_POD_NAME := string(k8sArgs.K8S_POD_NAME)
 	ifaceId := K8S_POD_NAMESPACE + "_" + K8S_POD_NAME + "_" + req.IfName
-
-	if err := s.ovnAgent.DeleteLogicalPort("public", ifaceId); err != nil {
+	lsName := ""
+	if conf.LogicalSwitch != "" {
+		lsName = K8S_POD_NAMESPACE + "/" + conf.LogicalSwitch
+	}
+	if err := s.ovnAgent.DeleteLogicalPort(lsName, ifaceId); err != nil {
 		klog.Errorf("%v", err)
 		return cniTypes.CNIResponse{
 			Error: err.Error(),
