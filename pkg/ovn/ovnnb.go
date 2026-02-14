@@ -14,12 +14,22 @@ import (
 )
 
 func (oa *OVNagent) CreateLogicalSwitch(namespace, name string) error {
-	ls := &models.LogicalSwitch{Name: namespace + "/" + name}
+	ctx := context.Background()
+	lsName := namespace + "/" + name
+	ls := &models.LogicalSwitch{Name: lsName}
+	results := []models.LogicalSwitch{}
+
+	err := oa.nbClient.WhereCache(func(lsw *models.LogicalSwitch) bool {
+		return lsw.Name == lsName
+	}).List(ctx, &results)
+	if err != nil || (len(results) >= 0) {
+		return fmt.Errorf("The logical switch %s already exists", ls.Name)
+	}
 	lsOP, err := oa.nbClient.Create(ls)
 	if err != nil {
 		return err
 	}
-	_, err = oa.nbClient.Transact(context.Background(), lsOP...)
+	_, err = oa.nbClient.Transact(ctx, lsOP...)
 	if err != nil {
 		return err
 	}
