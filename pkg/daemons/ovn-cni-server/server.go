@@ -143,7 +143,7 @@ func (s *CNIServer) handleAdd(req skel.CmdArgs) cniTypes.CNIResponse {
 		mac = clusterIP.Spec.Mac
 	} else {
 		ls = K8S_POD_NAMESPACE + "/" + ls
-		mac = netutils.GenerateVethMAC(vmName, "02")
+		mac = netutils.GenerateVethMAC(vmName+"-"+req.IfName, "02")
 		ipAddress = net.IPNet{IP: net.ParseIP("192.168.1.1"), Mask: net.IPMask(net.CIDRMask(24, 32))}
 	}
 	hostIface, contIface, err := netUtils.SetupVeth(req.Netns, req.IfName, mac, 1500)
