@@ -30,6 +30,7 @@ spec:
             containers:
                 - name: kloudstack-compute-controller
                   image: registry.ik8s.ir/hicompute/kloudstack:v0.0.0-alpha.0
+                  imagePullPolicy: Always
                   args:
                       - "controller"
                   resources:
