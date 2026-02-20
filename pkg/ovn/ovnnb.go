@@ -22,7 +22,10 @@ func (oa *OVNagent) CreateLogicalSwitch(namespace, name string) error {
 	err := oa.nbClient.WhereCache(func(lsw *models.LogicalSwitch) bool {
 		return lsw.Name == lsName
 	}).List(ctx, &results)
-	if err != nil || (len(results) >= 0) {
+	if err != nil {
+		return err
+	}
+	if len(results) >= 0 {
 		return fmt.Errorf("The logical switch %s already exists", ls.Name)
 	}
 	lsOP, err := oa.nbClient.Create(ls)
