@@ -4,18 +4,17 @@ Copyright © 2026 hicompute <kloudstack@hicompute.ir>
 package cmd
 
 import (
-	"github.com/hicompute/kloudstack/api/v1alpha1"
-	controller "github.com/hicompute/kloudstack/pkg/controllers"
+	"github.com/hicompute/kloudstack/api/network/v1alpha1"
+	controller "github.com/hicompute/kloudstack/pkg/controllers/network"
 	"github.com/hicompute/kloudstack/pkg/k8s"
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/cache"
-	kubevirtv1 "kubevirt.io/api/core/v1"
 )
 
-// controllerCmd represents the controller command
-var controllerCmd = &cobra.Command{
-	Use:   "controller",
-	Short: "kloudstack kubernetes controller.",
+// computeControllerCmd represents the compute controller command
+var computeControllerCmd = &cobra.Command{
+	Use:   "compute-controller",
+	Short: "kloudstack compute kubernetes controller.",
 	Long: `
 	Kloudstack controller is a Kubernetes controller that manages the lifecycle of Kloudstack resources.
 	It watches for changes in Kloudstack resources and performs the necessary actions to ensure that the resources are in the desired state.
@@ -35,17 +34,6 @@ var controllerCmd = &cobra.Command{
 			AddFunc: ctl.OnAddClusterIPPool,
 		})
 
-		kuevirtVMInformerV1 := k8s.NewDynamicInformer(dif, kubevirtv1.GroupVersion.WithResource("virtualmachines"))
-		kuevirtVMInformerV1.AddEventHandler(cache.ResourceEventHandlerDetailedFuncs{
-			AddFunc:    ctl.OnAddKubevirtVM,
-			DeleteFunc: ctl.OnDeleteKubevirtVM,
-		})
-
-		kuevirtVMIInformerV1 := k8s.NewDynamicInformer(dif, kubevirtv1.GroupVersion.WithResource("virtualmachineinstances"))
-		kuevirtVMIInformerV1.AddEventHandler(cache.ResourceEventHandlerDetailedFuncs{
-			UpdateFunc: ctl.OnUpdateVMI,
-		})
-
 		logicalSwitchInformerV1Alpha1 := k8s.NewDynamicInformer(dif, v1alpha1.SchemeBuilder.GroupVersion.WithResource("logicalswitches"))
 		logicalSwitchInformerV1Alpha1.AddEventHandler(cache.ResourceEventHandlerDetailedFuncs{
 			AddFunc: ctl.OnAddLogicalSwitch,
@@ -57,8 +45,7 @@ var controllerCmd = &cobra.Command{
 
 		go clusteripInformerV1alpha1.Run(stopCh)
 		go clusterippoolInformerV1alpha1.Run(stopCh)
-		go kuevirtVMInformerV1.Run(stopCh)
-		go kuevirtVMIInformerV1.Run(stopCh)
+
 		go logicalSwitchInformerV1Alpha1.Run(stopCh)
 
 		select {}
@@ -66,5 +53,5 @@ var controllerCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(controllerCmd)
+	rootCmd.AddCommand(computeControllerCmd)
 }

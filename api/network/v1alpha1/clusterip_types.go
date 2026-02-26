@@ -4,14 +4,21 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+type ClusterIP struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty,omitzero"`
+	Spec              ClusterIPSpec   `json:"spec"`
+	Status            ClusterIPStatus `json:"status,omitempty,omitzero"`
+}
+
 type ClusterIPSpec struct {
 	ClusterIPPool string `json:"clusterIPPool"`
 	Interface     string `json:"containerInterface"`
 	Address       string `json:"address"`
 	Mac           string `json:"mac,omitempty"`
-	// +kubebuilder:validation:Enum=v4;v6
-	Family   string `json:"family"`
-	Resource string `json:"resource"`
+	Family        string `json:"family"`
+	Resource      string `json:"resource"`
 }
 
 type ClusterIPHistory struct {
@@ -27,19 +34,9 @@ type ClusterIPStatus struct {
 	History    []ClusterIPHistory `json:"history,omitempty"`
 }
 
-type ClusterIP struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty,omitzero"`
-	Spec              ClusterIPSpec   `json:"spec"`
-	Status            ClusterIPStatus `json:"status,omitempty,omitzero"`
-}
-
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 type ClusterIPList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []ClusterIP `json:"items"`
-}
-
-func init() {
-	SchemeBuilder.Register(&ClusterIP{}, &ClusterIPList{})
 }

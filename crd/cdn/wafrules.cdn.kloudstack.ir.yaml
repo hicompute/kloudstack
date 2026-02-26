@@ -1,0 +1,125 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+    name: wafrules.cdn.kloudstack.ir
+spec:
+    group: cdn.kloudstack.ir
+    versions:
+        - name: v1alpha1
+          served: true
+          storage: true
+          schema:
+              openAPIV3Schema:
+                  type: object
+                  properties:
+                      spec:
+                          type: object
+                          properties:
+                              gateway:
+                                  type: string
+                              order:
+                                  type: integer
+                                  description: Unique rule order.
+                              enabled:
+                                  type: boolean
+                                  description: Enable or disable the rule.
+                                  default: true
+                              description:
+                                  type: string
+                              conditions:
+                                  type: array
+                                  description: ORs.
+                                  items:
+                                      type: array
+                                      description: ANDs
+                                      items:
+                                          type: object
+                                          properties:
+                                              param:
+                                                  type: string
+                                                  enum:
+                                                      - host
+                                                      - user_agent
+                                                      - referer
+                                                      - cookie
+                                                      - url
+                                                      - path
+                                                      - query
+                                                      - ip
+                                                      - country
+                                                      - method
+                                                      - body
+                                                      - arg
+                                                      - header
+                                              operator:
+                                                  type: string
+                                                  enum:
+                                                      - contains
+                                                      - equals
+                                                      - startswith
+                                                      - endswith
+                                                      - matches
+                                                      - in
+                                                      - not_in
+                                                      - gt
+                                                      - lt
+                                                      - exists
+                                                      - not_exists
+                                              value:
+                                                  type: string
+                              action:
+                                  type: object
+                                  properties:
+                                      type:
+                                          type: string
+                                          enum:
+                                              - deny
+                                              - allow
+                                              - captcha
+                                              - ratelimit
+                                              - set_cookie
+                                              - log
+                                      message:
+                                          type: string
+                                          description: Message to display when blocking.
+                                      code:
+                                          type: integer
+                                          description: HTTP status code for deny actions.
+                                          default: 403
+                                      rate:
+                                          type: integer
+                                          description: Requests per second for ratelimit.
+                                      burst:
+                                          type: integer
+                                          description: Burst capacity for ratelimit.
+                                      name:
+                                          type: string
+                                          description: Cookie name for set_cookie action.
+                                      value:
+                                          type: string
+                                          description: Cookie value for set_cookie action.
+                                      expires:
+                                          type: integer
+                                          description: Cookie expiration in seconds.
+          additionalPrinterColumns:
+              - name: Gateway
+                type: string
+                description: agteway.
+                jsonPath: .spec.gateway
+                priority: 0
+              - name: Order
+                type: integer
+                description: Rule Order.
+                jsonPath: .spec.order
+                priority: 0
+              - name: Enabled
+                type: boolean
+                jsonPath: .spec.enabled
+                priority: 0
+    scope: Namespaced
+    names:
+        plural: wafrules
+        singular: wafrule
+        kind: WAFRule
+        shortNames:
+            - wr

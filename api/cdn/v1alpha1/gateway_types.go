@@ -1,0 +1,30 @@
+package v1alpha1
+
+import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+type Gateway struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+	Spec              GatewaySpec   `json:"spec"`
+	Status            GatewayStatus `json:"status,omitempty"`
+}
+
+type GatewaySpec struct {
+	Domain     string     `json:"domain,omitempty"`
+	Upstreams  []Upstream `json:"upstreams,omitempty"`
+	Tls        string     `json:"tls,omitempty"`
+	WafEnabled bool       `json:"wafEnabled,omitempty"`
+}
+
+type GatewayStatus struct {
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+type GatewayList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+	Items           []Gateway `json:"items"`
+}

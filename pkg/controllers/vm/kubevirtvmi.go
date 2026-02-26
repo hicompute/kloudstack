@@ -3,7 +3,7 @@ package controller
 import (
 	"context"
 
-	"github.com/hicompute/kloudstack/api/v1alpha1"
+	"github.com/hicompute/kloudstack/api/network/v1alpha1"
 	"github.com/samber/lo"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

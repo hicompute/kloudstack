@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/hicompute/kloudstack/api/v1alpha1"
+	"github.com/hicompute/kloudstack/api/network/v1alpha1"
 	"k8s.io/klog/v2"
 )
 

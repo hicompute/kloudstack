@@ -189,3 +189,7 @@ func (oa *OVNagent) ListLogicalPorts(ctx context.Context, lsName string) ([]stri
 
 	return lsObj[0].Ports, nil
 }
+
+// func UpdateLogicalSwitchExternalIDs(lsName string, options ...map[string]string) error {
+
+// }

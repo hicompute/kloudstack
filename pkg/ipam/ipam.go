@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hicompute/kloudstack/api/v1alpha1"
+	"github.com/hicompute/kloudstack/api/network/v1alpha1"
 	helper "github.com/hicompute/kloudstack/pkg/helpers"
 	"github.com/hicompute/kloudstack/pkg/k8s"
 	netutils "github.com/hicompute/kloudstack/pkg/net_utils"

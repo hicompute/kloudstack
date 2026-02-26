@@ -6,7 +6,7 @@ import (
 	"net"
 	"reflect"
 
-	"github.com/hicompute/kloudstack/api/v1alpha1"
+	"github.com/hicompute/kloudstack/api/network/v1alpha1"
 	netutils "github.com/hicompute/kloudstack/pkg/net_utils"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

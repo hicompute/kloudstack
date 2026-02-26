@@ -1,4 +1,4 @@
-apiVersion: ipam.kloudstack.ir/v1alpha1
+apiVersion: network.kloudstack.ir/v1alpha1
 kind: ClusterIPPool
 metadata:
     name: cp1

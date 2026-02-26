@@ -2,27 +2,17 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-    name: clusterips.kloudstack.ir
+    name: clusterippools.network.kloudstack.ir
 spec:
-    group: kloudstack.ir
+    group: network.kloudstack.ir
     names:
-        kind: ClusterIP
-        listKind: ClusterIPList
-        plural: clusterips
-        singular: clusterip
+        kind: ClusterIPPool
+        listKind: ClusterIPPoolList
+        plural: clusterippools
+        singular: clusterippool
     scope: Cluster
     versions:
-        - additionalPrinterColumns:
-              - jsonPath: .spec.resource
-                name: Resource
-                type: string
-              - jsonPath: .spec.mac
-                name: MAC
-                type: string
-              - jsonPath: .metadata.creationTimestamp
-                name: Age
-                type: date
-          name: v1alpha1
+        - name: v1alpha1
           schema:
               openAPIV3Schema:
                   properties:
@@ -44,36 +34,29 @@ spec:
                       metadata:
                           type: object
                       spec:
-                          description: spec defines the desired state of ClusterIP
+                          description: spec defines the desired state of ClusterIPPool
                           properties:
-                              address:
+                              cidr:
                                   type: string
-                              clusterIPPool:
+                              gateway:
                                   type: string
-                              containerInterface:
-                                  type: string
-                              family:
+                              ipFamily:
                                   enum:
                                       - v4
                                       - v6
                                   type: string
-                              mac:
-                                  type: string
-                              resource:
-                                  type: string
                           required:
-                              - address
-                              - clusterIPPool
-                              - containerInterface
-                              - family
-                              - resource
+                              - cidr
+                              - ipFamily
                           type: object
                       status:
-                          description: status defines the observed state of ClusterIP
+                          description: status defines the observed state of ClusterIPPool
                           properties:
+                              allocatedIPs:
+                                  type: string
                               conditions:
                                   description: |-
-                                      conditions represent the current state of the ClusterIP resource.
+                                      conditions represent the current state of the ClusterIPPool resource.
                                       Each condition has a unique type and reflects the status of a specific aspect of the resource.
 
                                       Standard condition types include:
@@ -141,36 +124,27 @@ spec:
                                   x-kubernetes-list-map-keys:
                                       - type
                                   x-kubernetes-list-type: map
-                              history:
+                              freeIPs:
+                                  type: string
+                              nextIndex:
+                                  type: string
+                              releasedClusterIPs:
                                   items:
-                                      properties:
-                                          allocatedAt:
-                                              format: date-time
-                                              type: string
-                                          interface:
-                                              type: string
-                                          mac:
-                                              type: string
-                                          releasedAt:
-                                              format: date-time
-                                              type: string
-                                          resource:
-                                              type: string
-                                      required:
-                                          - allocatedAt
-                                          - mac
-                                          - resource
-                                      type: object
+                                      type: string
                                   type: array
+                              totalIPs:
+                                  type: string
+                          required:
+                              - allocatedIPs
+                              - freeIPs
+                              - nextIndex
+                              - totalIPs
                           type: object
                   required:
                       - spec
                   type: object
           selectableFields:
-              - jsonPath: .spec.resource
-              - jsonPath: .spec.containerInterface
-              - jsonPath: .spec.family
-              - jsonPath: .spec.mac
+              - jsonPath: .spec.ipFamily
           served: true
           storage: true
           subresources:
