@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: Service
 metadata:
-    name: kloudstack-gatekeeper
-    namespace: hicompute
+    name: gatekeeper
+    namespace: kloudstack
 spec:
     selector:
         app: gatekeeper

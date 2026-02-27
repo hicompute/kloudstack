@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-    name: kloudstack-metric-exporter
-    namespace: hicompute
+    name: metric-exporter
+    namespace: kloudstack
     labels:
-        k8s-app: kloudstack-metric-exporter
+        k8s-app: metric-exporter
 spec:
     selector:
         matchLabels:
-            k8s-app: kloudstack-metric-exporter
+            k8s-app: metric-exporter
     template:
         metadata:
             labels:
-                k8s-app: kloudstack-metric-exporter
+                k8s-app: metric-exporter
         spec:
             containers:
-                - name: kloudstack-metric-exporter
+                - name: metric-exporter
                   image: registry.ik8s.ir/hicompute/kloudstack:v0.0.0-alpha.0
                   imagePullPolicy: Always
                   args:

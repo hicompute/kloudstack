@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-    name: kloudstack-dhcp-server
-    namespace: hicompute
+    name: dhcp-server
+    namespace: kloudstack
     labels:
-        k8s-app: kloudstack-dhcp-server
+        k8s-app: dhcp-server
 spec:
     selector:
         matchLabels:
-            k8s-app: kloudstack-dhcp-server
+            k8s-app: dhcp-server
     template:
         metadata:
             labels:
-                k8s-app: kloudstack-dhcp-server
+                k8s-app: dhcp-server
         spec:
-            serviceAccountName: kloudstack-dhcp-server
+            serviceAccountName: dhcp-server
             affinity:
                 nodeAffinity:
                     requiredDuringSchedulingIgnoredDuringExecution:
@@ -24,7 +24,7 @@ spec:
                                     operator: Exists
             hostNetwork: true
             containers:
-                - name: kloudstack-dhcp-server
+                - name: dhcp-server
                   image: registry.ik8s.ir/hicompute/kloudstack:v0.0.0-alpha.0
                   imagePullPolicy: Always
                   args:

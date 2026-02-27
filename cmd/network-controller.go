@@ -11,10 +11,10 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-// computeControllerCmd represents the compute controller command
-var computeControllerCmd = &cobra.Command{
-	Use:   "compute-controller",
-	Short: "kloudstack compute kubernetes controller.",
+// networkControllerCmd represents the network controller command
+var networkControllerCmd = &cobra.Command{
+	Use:   "network-controller",
+	Short: "kloudstack network kubernetes controller.",
 	Long: `
 	Kloudstack controller is a Kubernetes controller that manages the lifecycle of Kloudstack resources.
 	It watches for changes in Kloudstack resources and performs the necessary actions to ensure that the resources are in the desired state.
@@ -53,5 +53,5 @@ var computeControllerCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(computeControllerCmd)
+	rootCmd.AddCommand(networkControllerCmd)
 }

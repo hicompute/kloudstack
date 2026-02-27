@@ -2,10 +2,10 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
     labels:
-        k8s-app: kloudstack-metric-exporter
+        k8s-app: metric-exporter
         release: prom
-    name: kloudstack-metric-exporter
-    namespace: monitoring
+    name: metric-exporter
+    namespace: kloudstack
 spec:
     endpoints:
         - honorLabels: true
@@ -15,7 +15,7 @@ spec:
           scheme: http
     namespaceSelector:
         matchNames:
-            - hicompute
+            - kloudstack
     selector:
         matchLabels:
-            k8s-app: kloudstack-metric-exporter
+            k8s-app: metric-exporter

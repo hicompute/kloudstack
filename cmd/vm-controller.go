@@ -47,5 +47,5 @@ var vmControllerCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(computeControllerCmd)
+	rootCmd.AddCommand(vmControllerCmd)
 }

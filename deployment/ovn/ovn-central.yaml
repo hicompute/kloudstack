@@ -2,20 +2,20 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
     labels:
-        k8s-app: kloudstack-ovn-central
-    name: kloudstack-ovn-central
-    namespace: hicompute
+        k8s-app: ovn-central
+    name: ovn-central
+    namespace: kloudstack
 spec:
-    serviceName: kloudstack-ovn-central
+    serviceName: ovn-central
     replicas: 3
     selector:
         matchLabels:
-            k8s-app: kloudstack-ovn-central
+            k8s-app: ovn-central
     template:
         metadata:
             labels:
-                k8s-app: kloudstack-ovn-central
-                name: kloudstack-ovn-central
+                k8s-app: ovn-central
+                name: ovn-central
         spec:
             containers:
                 - name: nb-ovsdb
@@ -148,7 +148,7 @@ spec:
                     requiredDuringSchedulingIgnoredDuringExecution:
                         - labelSelector:
                               matchLabels:
-                                  k8s-app: kloudstack-ovn-central
+                                  k8s-app: ovn-central
                           topologyKey: kubernetes.io/hostname
             volumes:
                 - hostPath:
@@ -167,11 +167,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-    name: kloudstack-ovn-central
-    namespace: ik8s-system
+    name: ovn-central
+    namespace: kloudstack
 spec:
     clusterIP: None
     ipFamilies:
         - IPv4
     selector:
-        k8s-app: kloudstack-ovn-central
+        k8s-app: ovn-central

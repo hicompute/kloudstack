@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-    name: kloudstack-ovn-cni
-    namespace: hicompute
+    name: ovn-cni
+    namespace: kloudstack
     labels:
-        k8s-app: kloudstack-ovn-cni
+        k8s-app: ovn-cni
 spec:
     selector:
         matchLabels:
-            k8s-app: kloudstack-ovn-cni
+            k8s-app: ovn-cni
     template:
         metadata:
             labels:
-                k8s-app: kloudstack-ovn-cni
+                k8s-app: ovn-cni
         spec:
-            serviceAccountName: kloudstack-ovn-cni
+            serviceAccountName: ovn-cni
             hostNetwork: true
             initContainers:
                 - args:
@@ -41,7 +41,7 @@ spec:
                       - mountPath: /etc/cni/net.d
                         name: cninetd
             containers:
-                - name: kloudstack-ovn-cni
+                - name: ovn-cni
                   image: registry.ik8s.ir/hicompute/kloudstack:v0.0.0-alpha.0
                   imagePullPolicy: IfNotPresent
                   args:

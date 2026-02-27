@@ -3,8 +3,8 @@ kind: Deployment
 metadata:
     labels:
         app: gatekeeper
-    name: kloudstack-gatekeeper
-    namespace: hicompute
+    name: gatekeeper
+    namespace: kloudstack
 spec:
     replicas: 1
     selector:
@@ -15,7 +15,7 @@ spec:
             labels:
                 app: gatekeeper
         spec:
-            serviceAccountName: kloudstack-gatekeeper
+            serviceAccountName: gatekeeper
             affinity:
                 nodeAffinity:
                     requiredDuringSchedulingIgnoredDuringExecution:
@@ -43,7 +43,7 @@ spec:
             volumes:
                 - name: tls
                   secret:
-                      secretName: kloudstack-gatekeeper-tls
+                      secretName: gatekeeper-tls
             tolerations:
                 - key: node-role.kubernetes.io/control-plane
                   operator: Exists

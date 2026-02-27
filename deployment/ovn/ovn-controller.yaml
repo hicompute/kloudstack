@@ -2,18 +2,18 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
     labels:
-        k8s-app: kloudstack-ovn-controller
-    name: kloudstack-ovn-controller
-    namespace: hicompute
+        k8s-app: ovn-controller
+    name: ovn-controller
+    namespace: kloudstack
 spec:
     selector:
         matchLabels:
-            k8s-app: kloudstack-ovn-controller
+            k8s-app: ovn-controller
     template:
         metadata:
             labels:
-                k8s-app: kloudstack-ovn-controller
-                name: kloudstack-ovn-controller
+                k8s-app: ovn-controller
+                name: ovn-controller
         spec:
             containers:
                 - args:

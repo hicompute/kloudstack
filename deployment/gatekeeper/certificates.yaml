@@ -1,17 +1,17 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-    name: kloudstack-gatekeeper
-    namespace: hicompute
+    name: gatekeeper
+    namespace: kloudstack
 spec:
     isCA: true
-    commonName: kloudstack-gatekeeper-ca
+    commonName: gatekeeper-ca
     dnsNames:
         - gatekeeper
-        - gatekeeper.hicompute
-        - gatekeeper.hicompute.svc
-        - gatekeeper.hicompute.svc.cluster.local
-    secretName: kloudstack-gatekeeper-tls
+        - gatekeeper.kloudstack
+        - gatekeeper.kloudstack.svc
+        - gatekeeper.kloudstack.svc.cluster.local
+    secretName: gatekeeper-tls
     privateKey:
         algorithm: ECDSA
         size: 256
